@@ -1,21 +1,40 @@
 import { supabase } from './supabaseClient';
+import { Auth } from '@supabase/auth-ui-react';
 
-export async function login(email: string) {
-  try {
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) throw error;
-    alert('Check your email for the login link!');
-  } catch (error: any) {
-    alert(error.error_description || error.message);
+export const { auth } = supabase;
+
+export async function signUp(credentials: any) {
+  const { email, password } = credentials;
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+  if (error) {
+    throw error;
+  }
+  return data;
+}
+
+export async function signIn(credentials: any) {
+  const { email, password } = credentials;
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (error) {
+    throw error;
+  }
+  return data;
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    throw error;
   }
 }
 
-export async function register(email: string) {
-  try {
-    const { error } = await supabase.auth.signUp({ email, password: '' }); // Supabase requires a password, but we're using OTP, so we pass an empty string
-    if (error) throw error;
-    alert('Check your email to confirm your registration!');
-  } catch (error: any) {
-    alert(error.error_description || error.message);
-  }
+export async function getUser() {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
 }

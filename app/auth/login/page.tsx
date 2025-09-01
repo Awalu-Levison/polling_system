@@ -1,19 +1,27 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
-import { login } from '@/lib/auth';
-import { useAuth } from '@/lib/auth-context';
+import { signIn } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
-  const { isLoading } = useAuth();
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email);
-    router.push('/');
+    setIsLoading(true);
+    try {
+      await signIn({ email, password });
+      router.push('/');
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -26,6 +34,14 @@ const LoginPage = () => {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label htmlFor="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
         <button type="submit" disabled={isLoading}>

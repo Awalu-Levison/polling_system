@@ -1,20 +1,28 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
-import { register } from '@/lib/auth';
-import { useAuth } from '@/lib/auth-context';
+import { signUp } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
-   const { isLoading } = useAuth();
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(email);
-    router.push('/');
+    setIsLoading(true);
+    try {
+      await signUp({ email, password });
+      router.push('/auth/login');
+      alert('Registration successful! Please check your email to confirm.');
+    } catch (error) {
+      console.error('Registration failed:', error);
+      alert('Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -29,8 +37,16 @@ const RegisterPage = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+        <label htmlFor="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Register' : 'Loading...'}
+          {isLoading ? 'Loading...' : 'Register'}
         </button>
       </form>
     </div>
